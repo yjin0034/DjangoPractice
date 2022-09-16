@@ -1,0 +1,95 @@
+<!-- 질문 목록 관련 템플릿 -->
+{% extends 'base.html' %} {# base.html 템플릿 상속 #}
+{% load pybo_filter %} {# pybo_filter.py 템플릿 필터 사용 #}
+{% block content %}
+<div class="container my-3">
+    <table class="table">
+        <thead>
+        <tr class="text-center table-dark">
+            <th>번호</th>
+            <th style="width:50%">제목</th>
+            <th>글쓴이</th>
+            <th>제목</th>
+            <th>작성일시</th>
+        </tr>
+        </thead>
+        <tbody>
+        {# question_list : render 함수로 전달받은 질문 목록 데이터> #}
+        {% if question_list %} {# question_list가 있다면 #}
+        {% for question in question_list %} {# question_list를 순회하며 순차적으로 하나씩 question에 대입 #}
+        <tr class="text-center"> {# 테이블 내용 #}
+            <td>
+                {# 테이블에 표시할 번호 #}
+                <!-- 번호 = 전체 건수 - 시작 인덱스 - 현재 인덱스 + 1 -->
+                {# question_list.paginator.count : 전체 건수, question_list.start_index : 시작 인덱스, forloop.counter0 : 현재 인덱스 #}
+                {# forloop.counter0 : 루프 내의 순서로 0부터 표시 #}
+                {# 직접 만든 템플릿 필터(pybo_filter.py) sub 함수 사용 #}
+                {{ question_list.paginator.count|sub:question_list.start_index|sub:forloop.counter0|add:1 }}
+            </td>
+            <td class="text-start"> {# 테이블 제목 #}
+                {# 질문 id(question.id)를 받아와, 받아온 id와 관련된 질문 제목(question.subject)을 링크된 주소에 출력 #}
+                {# {{ question.id }} : for 문에 의해 대입된 question 객체의 id 번호를 출력 #}
+                {# {{ question.subject }} : for 문에 의해 대입된 question 객체의 제목을 출력 #}
+                {# 하드코딩 되어 있던 /pybo/{{ question.id }} 링크를 URL 네임스페이스과 URL 별칭을 활용한 {% url 'pybo:detail' question.id %}로 변경 #}
+                <a href="{% url 'pybo:detail' question.id %}">{{ question.subject }}</a>
+                {# (질문의) 답변 개수 표시 #}
+                {% if question.answer_set.count > 0 %} {# (해당 질문의) 답변의 개수가 1개 이상이라면, #}
+                <span class="text-danger small mx-2">{{ question.answer_set.count }}</span> {# 답변 개수를 표시 #}
+                {% endif %}
+            </td>
+            <td>{{ question.author.username }}</td> {# 질문 글쓴이 #}
+            <td>{{ question.create_date }}</td> {# {{ question.create_date }} : for 문에 의해 대입된 question 객체의 작성 일시를 출력 #}
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+            <td colspan="4">질문이 없습니다.</td>
+        </tr>
+        {% endif %}
+        </tbody>
+    </table>
+    <!-- 페이징 처리 시작 -->
+    <ul class="pagination justify-content-center">
+        <!-- 이전 페이지 -->
+        {% if question_list.has_previous %} {# 이전 페이지가 있는지 체크 #}
+        <li class="page-item">
+            {# 이전 페이지 번호로 이동 #} {# {{ question_list.previous_page_number }} : 이전 페이지 번호 #}
+            <a class="page-link" href="?page={{ question_list.previous_page_number }}">이전</a>
+        </li>
+        {% else %} {# 이전 페이지가 없는 경우에는 "이전" 링크가 비활성화되도록 함 #}
+        <li class="page-item disabled">
+            <a class="page-link" tabindex="-1" aria-disabled="true" href="#">이전</a>
+        </li>
+        {% endif %}
+        <!-- 페이지 리스트 -->
+        {% for page_number in question_list.paginator.page_range %} {# 페이지 리스트 루프 #}
+        {# 페이지 리스트의 페이지 번호가 현재 페이지(question_list.number)를 기준으로 좌우 5개씩 보이도록 설정 #}
+        {# |add:-5는 5만큼 빼라는 의미이고, |add:5는 5만큼 더하라는 의미 #}
+        {% if page_number >= question_list.number|add:-5 and page_number <= question_list.number|add:5 %}
+        {% if page_number == question_list.number %} {# 현재 페이지와 같은지 체크 #}
+        <li class="page-item active" aria-current="page">
+            <a class="page-link" href="?page={{ page_number }}">{{ page_number }}</a>
+        </li>
+        {% else %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_number }}">{{ page_number }}</a>
+        </li>
+        {% endif %}
+        {% endif %}
+        {% endfor %}
+        <!-- 다음 페이지 -->
+        {% if question_list.has_next %} {# 다음 페이지가 있는지 체크 #}
+        <li class="page-item">
+            {# 다음 페이지 번호로 이동 #} {# {{ question_list.next_page_number }} : 다음 페이지 번호 #}
+            <a class="page-link" href="?page={{ question_list.next_page_number }}">다음</a>
+        </li>
+        {% else %} {# 다음 페이지가 없는 경우에는 "다음" 링크가 비활성화되도록 함 #}
+        <li class="page-item disabled">
+            <a class="page-link" tabindex="-1" aria-disabled="true" href="#">다음</a>
+        </li>
+        {% endif %}
+    </ul>
+    <!-- 페이징 처리 끝 -->
+    <a href="{% url 'pybo:question_create' %}" class="btn btn-primary">질문 등록하기</a> {# 질문 등록하기 버튼 생성 #}
+</div>
+{% endblock %}
