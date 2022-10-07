@@ -26,13 +26,16 @@ from pybo.views import base_views
 
 
 urlpatterns = [
+    # admin/ 로 시작하는 페이지를 요청하면, admin.site.urls를 호출
+    # 뒤에 /(슬래시)를 붙여주면 브라우저 주소창에 http://localhost:8000/pybo 라고 입력해도 자동으로 http://localhost:8000/pybo/ 처럼 변환된다. 이렇게 되는 이유는 URL을 정규화하는 장고의 기능 때문
+    # 특별한 경우가 아니라면 URL 매핑시 항상 끝에 슬래시를 붙여 준다.
     path('admin/', admin.site.urls),
     # pybo/ 로 시작하는 페이지를 요청하면 pybo/urls.py 파일의 매핑 정보를 읽어서 처리하도록 함
     path('pybo/', include('pybo.urls')),
     # common/ 으로 시작하는 URL은 모두 common/urls.py 파일을 참조하게 함
     path('common/', include('common.urls')),
     # '/'에 해당되는 path
-    # / 페이지 요청에 대해 path('', base_views.index, name='index')가 작동하여 pybo/views/base_views.py 파일의 index 함수가 실행됨
+    # / 페이지 요청에 대해 아래의 해당 path('', base_views.index, name='index')가 작동하여 pybo/views/base_views.py 파일의 index 함수 뷰가 실행됨
     # 메인 페이지인 듯
     path('', base_views.index, name='index'),
 ]

@@ -38,10 +38,10 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'common.apps.CommonConfig',  # common 앱 추가
-    'pybo.apps.PyboConfig',  # pybo 앱 추가
+    'common.apps.CommonConfig',  # common 앱 관련 클래스 추가  # common/apps.py 파일에 있는 클래스
+    'pybo.apps.PyboConfig',  # pybo 앱 관련 클래스 추가  # pybo/apps.py 파일에 있는 클래스
     'django.contrib.admin',
-    'django.contrib.auth',
+    'django.contrib.auth',  # 장고의 로그인, 로그아웃 기능 관련
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -63,8 +63,10 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        # 템플릿 파일을 저장할 디렉터리 목록
-        'DIRS': [BASE_DIR / 'templates'],
+        # 템플릿 파일을 저장할 템플릿 디렉터리 목록
+        'DIRS': [
+            BASE_DIR / 'templates',
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -126,7 +128,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_URL = 'static/'
-# 스태틱 파일을 저장할 디렉터리 목록
+# 스태틱 파일을 저장할 스태틱 디렉터리 목록
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
@@ -139,7 +141,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # 로그인 성공 후 이동할 URL 설정
 # 로그인이 성공하면 django.contrib.auth 패키지는 디폴트로 /accounts/profile/ 이라는 URL로 이동시킨다.
 # 다만, /accounts/profile/ URL은 현재 우리가 파이보 앱에 구성한 URL 구조와 맞지 않으므로,
-# 로그인 성공 시 / 페이지로 이동할 수 있도록 아래와 같이 작성함.
+# 우리는 로그인 성공 시 / 페이지로 이동할 수 있도록 아래와 같이 설정함.
 LOGIN_REDIRECT_URL = '/'
 
 # 로그아웃 시 이동할 URL 설정

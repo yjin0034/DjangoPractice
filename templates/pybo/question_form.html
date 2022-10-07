@@ -1,18 +1,19 @@
 <!-- 질문 등록 관련 템플릿 -->
-{% extends 'base.html' %} {# base.html 템플릿 상속 #}
-{% block content %}
+{% extends 'base.html' %}  {# base.html 템플릿 상속 #}
+{% block content %}  {# base.html 본문 오버라이딩 #}
 <div class="container">
     <h5 class="my-3 border-bottom pb-2">질문등록</h5>
     {# form 태그에 action 속성을 지정하지 않으면, 현재 페이지의 URL이 디폴트 action으로 설정됨 #}
-    <form method="post"> {# 동일한 템플릿을 여러 기능에서 함께 사용할 경우에는, 이처럼 form의 action 속성을 비워두는 트릭을 종종 사용 #}
+    {# 동일한 템플릿을 여러 기능에서 함께 사용할 경우에는, 이처럼 form의 action 속성을 비워두는 트릭을 종종 사용 #}
+    <form method="post">
         {% csrf_token %}
         {# 질문 작성 시, 발생하는 오류의 내용 출력과 관련된 코드가 작성된 템플릿 파일 #}
-        {# question_create 함수에서 form.is_valid() 가 실패할 경우 발생하는 오류의 내용을 표시하기 위한 템플릿 코드 #}
+        {# (pybo/views/question_views의) question_create 함수에서 form.is_valid() 가 실패할 경우 발생하는 오류의 내용을 표시하기 위한 템플릿 코드 #}
         {% include "form_errors.html" %}
-        {# ({{ form.as_p }}로 자동으로 생성되는 HTML 대신,) 질문등록 폼 직접 작성하기 #}
+        {# ({{ form.as_p }}로 자동으로 생성되는 HTML 대신,) 제목과 내용에 해당되는 HTML코드를 직접 작성하기 #}
         <div class="mb-3">
             <label for="subject" class="form-label">제목</label>
-            {# {{ form.subject.value|default_if_none:'' }} : 오류가 발생했을 경우 기존에 입력했던 값을 유지하기 위함 #}
+            {# value="{{ form.subject.value }}" : 오류가 발생했을 경우 기존에 입력했던 값을 유지하기 위한 코드 #}
             {# |default_if_none:'' :  폼 데이터(form.subject.value)에 값이 없을 경우 None 이라는 문자열이 표시되는데, None 대신 공백으로 표시하라는 의미의 템플릿 필터 #}
             {# 장고의 템플릿 필터는 |default_if_none:'' 처럼, | 기호와 함께 사용 #}
             <input type="text" class="form-control" name="subject" id="subject"

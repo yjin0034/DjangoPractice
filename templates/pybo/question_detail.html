@@ -1,10 +1,10 @@
 <!-- 질문 상세 페이지 관련 템플릿 -->
-{% extends 'base.html' %} {# base.html 템플릿 상속 #}
-{% load pybo_filter %} {# pybo_filter.py 템플릿 필터 사용 #}
-{% block content %}
-<div class="container my-3">
+{% extends 'base.html' %}  {# base.html 템플릿 상속 #}
+{% load pybo_filter %}  {# pybo_filter.py 템플릿 필터 사용 #}
+{% block content %}  {# base.html 본문 오버라이딩 #}
+<div class="container my-3">  {# 부트스트랩 컨테이너 #}
     <!-- 오류 message 표시 -->
-    {# 비정상적인 방법으로 질문을 수정할 경우 해당 오류 출력 #}
+    {# 질문 수정 시, 비정상적인 방법으로 수정할 경우 해당 오류 출력 #}
     {% if messages %}
     <div class="alert alert-danger my-3" role="alert">
     {% for message in messages %}
@@ -14,23 +14,24 @@
     </div>
     {% endif %}
     <!-- 질문 -->
-    {# question : render 함수로 전달받은 질문 데이터> #}
-    <h2 class="border-bottom py-2">{{ question.subject }}</h2> {# 질문 제목 #}
-    <div class="card my-3"> {# card, card-body, card-text : 부트스트랩 Card 컴포넌트 #}
+    {# question : render 함수로 전달받은 질문 데이터 #}
+    <h2 class="border-bottom py-2">{{ question.subject }}</h2>  {# 질문 제목 #}  {# border-bottom : 아래방향 테두리 선 #} {# py-2 : 상하 패딩값 2 #}
+    <div class="card my-3">  {# 부트스트랩 Card 컴포넌트 #}  {# my-3 : 상하 마진값 3 #}
         <div class="card-body">
+            {# 질문 내용에 마크다운 문법 적용 가능하도록 코드 추가 #}
             {# 마크다운 활용을 위해 직접 만든 템플릿 필터(pybo_filter.py) mark 함수 사용 #}
-            <div class="card-text">{{ question.content|mark }}</div> {# 질문 내용 #}
+            <div class="card-text">{{ question.content|mark }}</div>  {# 질문 내용 #}
             <div class="d-flex justify-content-end"> {# d-flex justify-content-end : 컴포넌트의 우측 정렬 #}
                 <!-- 질문 수정 일시 -->
                 {% if question.modify_date %}
                 <div class="badge bg-light text-dark p-2 text-start mx-3">
                     <div class="mb-2">수정일</div>
-                    <div>{{ question.modify_date }}</div>
+                    <div>{{ question.modify_date }}</div>  {# 질문 수정일시 #}
                 </div>
                 {% endif %}
-                <div class="badge bg-light text-dark p-2 text-start"> {# badge : 부트스트랩 Badge 컴포넌트 #}
-                    <div class="mb-2">{{ question.author.username }}</div> {# 질문 글쓴이 #}
-                    <div>{{ question.create_date }}</div> {# 질문 작성일시 #}
+                <div class="badge bg-light text-dark p-2 text-start">  {# 부트스트랩 Badge 컴포넌트 #}  {# bg-light : 연회색 배경 #}  {# text-dark : 검은색 글씨 #}  {# p-2 : 상하좌우 패딩값 2 #}
+                    <div class="mb-2">{{ question.author.username }}</div>  {# 질문 글쓴이 #}
+                    <div>{{ question.create_date }}</div>  {# 질문 작성일시 #}
                 </div>
             </div>
             <!-- 질문 추천, 수정, 삭제 버튼 -->
@@ -40,9 +41,9 @@
                 {# 하지만, class 속성에 "recommend"를 추가하여 자바스크립로 data-uri에 정의된 URL이 호출되게 할 것이다. 이와 같은 방법을 사용하는 이유는 "추천" 버튼을 눌렀을 때 재확인창을 통해 사용자의 추천 의사에 대해 재확인을 구하기 위함이다. #}
                 <a href="javascript:void(0)" class="recommend btn btn-sm btn-outline-secondary"
                    data-uri="{% url 'pybo:question_vote' question.id %}">추천
-                  <span class="badge rounded-pill bg-success">{{ question.voter.count }}</span> {# 추천수 카운트 #}
+                  <span class="badge rounded-pill bg-success">{{ question.voter.count }}</span>  {# 추천수 카운트 #}
                 </a>
-                {# 로그인한 사용자와 글쓴이가 동일한 경우에만 노출되도록 함 #}
+                {# 로그인한 사용자와 질문 작성자가 동일한 경우에만 노출되도록 함 #}
                 {% if request.user == question.author %}
                 {# 수정 버튼 #}
                 {# 질문 id(question.id)를 받아와, 링크된 해당 URL로 전달 #}
@@ -60,28 +61,29 @@
         </div>
     </div>
     <!-- 답변 -->
-    <h5 class="border-bottom my-3 py-2">{{ question.answer_set.count }}개의 답변이 있습니다.</h5> {# question.answer_set.count : 답변의 총 갯수 #}
-    {% for answer in question.answer_set.all %} {# question.answer_set.all을 순회하며 순차적으로 하나씩 answer에 대입 #}
-    {# 답변 작성, 수정, 추천 후 작성, 수정, 추천한 해당 답변글 위치로 다시 이동하게 하는 앵커 태그 #}
-    {# 답글을 작성하거나 수정한 후에 항상 페이지 상단으로 스크롤이 이동되는 문제를 해결하기 위해, URL 호출시 원하는 위치로 이동시켜 주는 HTML 앵커(anchor) 태그를 활용하여 해결한다. #}
+    <h5 class="border-bottom my-3 py-2">{{ question.answer_set.count }}개의 답변이 있습니다.</h5>  {# question.answer_set.count : 답변의 총 개수 #}
+    {% for answer in question.answer_set.all %}  {# question.answer_set.all을 순회하며 순차적으로 하나씩 answer에 대입 #}
+    {# 답변 작성(또는 수정, 추천) 후 작성한 해당 답변글 위치로 다시 이동하게 하는 앵커 태그 #}
+    {# 답글을 작성한 후에 항상 페이지 상단으로 스크롤이 이동되는 문제를 해결하기 위해, URL 호출시 원하는 위치로 이동시켜 주는 HTML 앵커(anchor) 태그를 활용하여 해결한다. #}
     {# 예를 들어, HTML 중간에 <a id="django"></a> 라는 앵커 태그가 있다면 이 HTML을 호출하는 URL 뒤에 #django 라고 붙여주면 해당 페이지가 호출되면서 해당 앵커로 스크롤이 이동된다. #}
-    {# 앵커 태그의 name 속성은 유일한 값이어야 하므로 answer_{{ answer.id }}와 같이 답변 id를 사용 #}
+    {# 앵커 태그의 name 속성은 유일한 값이어야 하므로 answer_{{ answer.id }}와 같이 답변 id를 사용할 것이다. #}
     <a id="answer_{{ answer.id }}"></a>
     <div class="card my-3">
         <div class="card-body">
+            {# 답변 내용에 마크다운 문법 적용 가능하도록 코드 추가 #}
             {# 마크다운 활용을 위해 직접 만든 템플릿 필터(pybo_filter.py) mark 함수 사용 #}
-            <div class="card-text">{{ answer.content|mark }}</div> {# {{ answer.content }} : for 문에 의해 대입된 answer 객체의 내용을 출력 #}
+            <div class="card-text">{{ answer.content|mark }}</div>  {# 답변 내용 #}
             <div class="d-flex justify-content-end">
                 <!-- 답변 수정 일시 -->
                 {% if answer.modify_date %}
                 <div class="badge bg-light text-dark p-2 text-start mx-3">
                     <div class="mb-2">수정일</div>
-                    <div>{{ answer.modify_date }}</div>
+                    <div>{{ answer.modify_date }}</div>  {# 답변 수정일시 #}
                 </div>
                 {% endif %}
                 <div class="badge bg-light text-dark p-2 text-start">
-                    <div class="mb-2">{{ answer.author.username }}</div> {# 답변 글쓴이 #}
-                    <div>{{ answer.create_date }}</div> {# {{ answer.create_date }} : for 문에 의해 대입된 answer 객체의 작성 일시를 출력 #}
+                    <div class="mb-2">{{ answer.author.username }}</div>  {# 답변 글쓴이 #}
+                    <div>{{ answer.create_date }}</div>  {# 답변 작성 일시 #}
                 </div>
             </div>
             <!-- 답변 추천, 수정, 삭제 버튼 -->
@@ -89,7 +91,7 @@
                 {# 추천 버튼 #}
                 <a href="javascript:void(0)" class="recommend btn btn-sm btn-outline-secondary"
                    data-uri="{% url 'pybo:answer_vote' answer.id %}">추천
-                  <span class="badge rounded-pill bg-success">{{ answer.voter.count }}</span> {# 추천수 카운트 #}
+                  <span class="badge rounded-pill bg-success">{{ answer.voter.count }}</span>  {# 추천수 카운트 #}
                 </a>
                 {# 로그인한 사용자와 글쓴이가 동일한 경우에만 노출되도록 함 #}
                 {% if request.user == answer.author %}
@@ -106,28 +108,27 @@
     </div>
     {% endfor %}
     <!-- 답변 등록 -->
-    <form action="{% url 'pybo:answer_create' question.id %}" method="post" class="my-3"> {# 링크된 해당 URL로, 작성된 form 데이터를 POST 방식으로 전달 #}
+    <form action="{% url 'pybo:answer_create' question.id %}" method="post" class="my-3">  {# 링크된 해당 URL로, 작성된 form 데이터를 POST 방식으로 전달 #}
         {% csrf_token %} {# csrf 공격 방지 코드. form으로 전송한 데이터가 실제 웹 페이지에서 작성한 데이터인지 판단하는 가늠자 역할 #}
         {# (질문의) 답변 작성 시, 발생하는 오류의 내용 출력과 관련된 코드가 작성된 템플릿 파일 #}
-        {# answer_create 함수에서 form.is_valid() 가 실패할 경우 발생하는 오류의 내용을 표시하기 위한 템플릿 코드 #}
+        {# (pybo/views/answer_views의) answer_create 함수에서 form.is_valid() 가 실패할 경우 발생하는 오류의 내용을 표시하기 위한 템플릿 코드 #}
         {% include "form_errors.html" %}
-        <div class="mb-3">
-            <label for="content" class="form-label">답변내용</label> {# form-control, form-label : 부트스트랩 Form 컴포넌트 #}
-            {# <textarea></textarea> : 답변의 내용을 입력할 수 있는 텍스트창 #}
-            {# if not user.is_authenticated : 로그인 상태가 아닌 경우 답변을 입력하지 못하게 함 #}
-            <textarea {% if not user.is_authenticated %}disabled{% endif %}
+        <div class="mb-3">  {# mb-3 : 하(bottom) 마진값 3 #}
+            <label for="content" class="form-label">답변내용</label>  {# form-control, form-label : 부트스트랩 Form 컴포넌트 #}
+            {# {% if not user.is_authenticated %}disabled{% endif %} : 로그인 상태가 아닌 경우 textarea 태그에 disabled 속성을 적용하여 입력을 못하게 만듦 #}
+            <textarea {% if not user.is_authenticated %}disabled{% endif %}  {# <textarea></textarea> : 답변의 내용을 입력할 수 있는 텍스트창 #}
                     name="content" id="content" class="form-control" rows="10"></textarea>
         </div>
-        <input type="submit" value="답변등록" class="btn btn-primary"> {# 답변등록 버튼. 해당 버튼을 클릭하면 작성한 form 데이터를 전달 #} {# btn btn-primary : 부트스트랩 버튼 컴포넌트 #}
+        <input type="submit" value="답변등록" class="btn btn-primary">  {# 답변등록 버튼. 해당 버튼을 클릭하면 작성한 form 데이터를 전달 #} {# btn btn-primary : 부트스트랩 버튼 컴포넌트 #}
     </form>
 </div>
 {% endblock %}
 <!-- 재확인 창 관련 자바스크립트 코드 -->
-{% block script %}
+{% block script %}  {# base.html JS 오버라이딩 #}
 <script type='text/javascript'>
 <!-- (질문 또는 답변의) 삭제 버튼 관련 재확인 창 -->
 {# 삭제 버튼을 눌렀을 때, 삭제 재확인 창("정말로 삭제하시겠습니까?")을 호출하기 위한 자바스크립트 코드 #}
-{# 삭제 버튼에 class="delete"가 적용되어 있으므로, delete라는 클래스를 포함하는 컴포넌트(예:버튼이나 링크)를 클릭하면 "정말로 삭제하시겠습니까?" 라는 질문을 하고 "확인"을 선택했을 때 해당 컴포넌트의 data-uri 값으로 URL 호출을 하라는 의미 #}
+{# 삭제 버튼 관련 코드에 class="delete"가 적용되어 있으므로, delete라는 클래스를 포함하는 컴포넌트(예:버튼이나 링크)를 클릭하면 "정말로 삭제하시겠습니까?" 라는 질문을 하고 "확인"을 선택했을 때 해당 컴포넌트의 data-uri 값으로 URL 호출을 하라는 의미 #}
 {# 아래와 같은 스크립트를 추가하면 "삭제" 버튼을 클릭하고 "확인"을 선택하면 data-uri 속성에 해당하는 {% url 'pybo:question_delete' question.id %}(또는, {% url 'pybo:answer_delete' answer.id %})이 호출될 것 #}
 const delete_elements = document.getElementsByClassName("delete");
 Array.from(delete_elements).forEach(function(element) {
